@@ -1,0 +1,105 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <limits>
+
+using namespace std;
+
+class QuadraticEquation {
+private:
+    double a, b, c;
+
+public:
+    QuadraticEquation() : a(0), b(0), c(0) {} 
+    QuadraticEquation(double a_coef, double b_coef, double c_coef) {
+        setCoefficients(a_coef, b_coef, c_coef);
+    } 
+    QuadraticEquation(const QuadraticEquation& other) {
+        a = other.a;
+        b = other.b;
+        c = other.c;
+    } 
+
+    void setCoefficients(double a_coef, double b_coef, double c_coef) {
+        if (a_coef == 0) {
+            cerr << "Коэффициент 'a' не может быть равен нулю для квадратного уравнения." << endl;
+            a = 1; 
+        } else {
+            a = a_coef;
+        }
+        b = b_coef;
+        c = c_coef;
+    }
+
+    friend ostream& operator<<(ostream& os, const QuadraticEquation& eq) {
+        os << "Квадратное уравнение: "
+           << eq.a << "x^2 + " 
+           << eq.b << "x + "
+           << eq.c;
+        return os;
+    }
+
+    vector<double> getRoots() const {
+        vector<double> roots;
+
+        double discriminant = b * b - 4 * a * c;
+
+        if (discriminant > 0) {
+            double sqrt_discriminant = sqrt(discriminant);
+            double root1 = (-b + sqrt_discriminant) / (2 * a);
+            double root2 = (-b - sqrt_discriminant) / (2 * a);
+            roots.push_back(root1);
+            roots.push_back(root2);
+        } else if (discriminant == 0) {
+            double root = -b / (2 * a);
+            roots.push_back(root);
+        }
+        return roots;
+    }
+
+    double getA() const { return a; }
+    double getB() const { return b; }
+    double getC() const { return c; }
+};
+
+int main() {
+    double a, b, c;
+
+    cout << "Введите коэффициент 'a' (не равен 0): ";
+    while (!(cin >> a) || a == 0) {
+        cout << "Некорректное значение 'a'. Пожалуйста, введите число, не равное нулю: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    cout << "Введите коэффициент 'b': ";
+    while (!(cin >> b)) {
+        cout << "Некорректное значение 'b'. Пожалуйста, введите число: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    cout << "Введите коэффициент 'c': ";
+    while (!(cin >> c)) {
+        cout << "Некорректное значение 'c'. Пожалуйста, введите число: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+
+    QuadraticEquation eq;
+    eq.setCoefficients(a, b, c);
+
+    cout << eq << endl;
+
+    vector<double> roots = eq.getRoots();
+
+    if (roots.empty()) {
+        cout << "Уравнение не имеет действительных корней." << endl;
+    } else if (roots.size() == 1) {
+        cout << "Уравнение имеет один действительный корень: " << roots[0] << endl;
+    } else {
+        cout << "Уравнение имеет два действительных корня: " << roots[0] << " и " << roots[1] << endl;
+    }
+
+    return 0;
+}
