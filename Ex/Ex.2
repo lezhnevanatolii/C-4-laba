@@ -1,0 +1,140 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+#include <cmath> 
+
+using namespace std;
+
+class QuadraticEquation {
+private:
+    double a, b, c;  
+
+public:
+    QuadraticEquation() : a(1), b(0), c(0) {}
+
+    
+    QuadraticEquation(double a_, double b_, double c_) : a(a_), b(b_), c(c_) {}
+
+    
+    void setCoefficients(double a_, double b_, double c_) {
+        a = a_; b = b_; c = c_;
+    }
+
+    
+    void inputCoefficients() {
+        cout << "Введите коэффициент 'a' (не равен 0): ";
+        while (!(cin >> a) || a == 0) {
+            cout << "Некорректное значение 'a'. Пожалуйста, введите число, не равное нулю: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        cout << "Введите коэффициент 'b': ";
+        cin >> b;
+        cout << "Введите коэффициент 'c': ";
+        cin >> c;
+    }
+
+    
+    friend ostream& operator<<(ostream& os, const QuadraticEquation& eq) {
+        os << eq.a << "x^2 ";
+        if (eq.b >= 0) os << "+ " << eq.b << "x ";
+        else os << "- " << -eq.b << "x ";
+        if (eq.c >= 0) os << "+ " << eq.c;
+        else os << "- " << -eq.c;
+        return os;
+    }
+
+    
+    vector<double> getRoots() const {
+        vector<double> roots;
+        double discriminant = b * b - 4 * a * c;
+        if (discriminant < 0) {
+            return roots;  
+        } else if (discriminant == 0) {
+            double root = -b / (2 * a);
+            roots.push_back(root);
+        } else {
+            double sqrtD = sqrt(discriminant);
+            double root1 = (-b + sqrtD) / (2 * a);
+            double root2 = (-b - sqrtD) / (2 * a);
+            roots.push_back(root1);
+            roots.push_back(root2);
+        }
+        return roots;
+    }
+
+    
+    QuadraticEquation& operator++() {
+        ++a; ++b; ++c;
+        return *this;
+    }
+
+    
+    QuadraticEquation& operator--() {
+        --a; --b; --c;
+        return *this;
+    }
+
+    
+    operator double() const {
+        return b * b - 4 * a * c;
+    }
+
+    
+    explicit operator bool() const {
+        return getRoots().size() > 0;
+    }
+
+    
+    bool operator==(const QuadraticEquation& other) const {
+        return (a == other.a && b == other.b && c == other.c);
+    }
+
+    bool operator!=(const QuadraticEquation& other) const {
+        return !(*this == other);
+    }
+};
+
+int main() {
+    QuadraticEquation eq1, eq2, eq3;
+
+    cout << "Введите коэффициенты для первого уравнения:\n";
+    eq1.inputCoefficients();
+
+    cout << "Ваше уравнение: " << eq1 << endl;
+
+    ++eq1;
+    cout << "После ++: " << eq1 << endl;
+
+    --eq1;
+    cout << "После --: " << eq1 << endl;
+
+    double D = eq1; 
+    cout << "Дискриминант = " << D << endl;
+
+    if (static_cast<bool>(eq1)) {
+        auto roots = eq1.getRoots();
+        cout << "Уравнение имеет действительные корни:\n";
+        for (size_t i = 0; i < roots.size(); ++i) {
+            cout << "Корень " << i + 1 << ": " << roots[i] << endl;
+        }
+    } else {
+        cout << "Уравнение не имеет действительных решений.\n";
+    }
+
+    eq2.setCoefficients(2.0, -5.0, 3.0); 
+    cout << "eq2: " << eq2 << endl;
+
+    if (eq1 == eq2)
+        cout << "eq1 и eq2 равны по коэффициентам.\n";
+    else
+        cout << "eq1 и eq2 не равны.\n";
+
+    eq3.setCoefficients(1.0, 0.0, 0.0);
+    cout << "eq3: " << eq3 << endl;
+
+    if (eq1 != eq3)
+        cout << "eq1 и eq3 не равны.\n";
+
+    return 0;
+}
