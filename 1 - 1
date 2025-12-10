@@ -1,0 +1,249 @@
+#include <iostream>
+#include <cmath>
+#include <stdexcept>
+
+class QuadraticEquation {
+private:
+    double a;
+    double b;
+    double c;
+
+public:
+    QuadraticEquation() {
+        a = 1.0;
+        b = 0.0;
+        c = 0.0;
+    }
+
+    QuadraticEquation(double coefficientA, double coefficientB, double coefficientC) {
+        if (coefficientA == 0.0) {
+            throw std::invalid_argument("Коэффициент a не может быть равен 0");
+        }
+        a = coefficientA;
+        b = coefficientB;
+        c = coefficientC;
+    }
+
+    QuadraticEquation(const QuadraticEquation& other) {
+        a = other.a;
+        b = other.b;
+        c = other.c;
+    }
+
+    double getA() const {
+        return a;
+    }
+
+    double getB() const {
+        return b;
+    }
+
+    double getC() const {
+        return c;
+    }
+
+    void setA(double coefficientA) {
+        if (coefficientA == 0.0) {
+            throw std::invalid_argument("Коэффициент a не может быть равен 0");
+        }
+        a = coefficientA;
+    }
+
+    void setB(double coefficientB) {
+        b = coefficientB;
+    }
+
+    void setC(double coefficientC) {
+        c = coefficientC;
+    }
+
+    double calculateDiscriminant() const {
+        return b * b - 4.0 * a * c;
+    }
+
+    double* calculateRoots() const {
+        double discriminant = calculateDiscriminant();
+        
+        if (discriminant > 0) {
+            double* roots = new double[2];
+            roots[0] = (-b + sqrt(discriminant)) / (2.0 * a);
+            roots[1] = (-b - sqrt(discriminant)) / (2.0 * a);
+            return roots;
+        } else if (discriminant == 0) {
+            double* roots = new double[1];
+            roots[0] = -b / (2.0 * a);
+            return roots;
+        } else {
+            double* roots = new double[0];
+            return roots;
+        }
+    }
+
+    int getNumberOfRoots() const {
+        double discriminant = calculateDiscriminant();
+        
+        if (discriminant > 0) {
+            return 2;
+        } else if (discriminant == 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    friend std::ostream& operator<<(std::ostream& output, const QuadraticEquation& equation);
+};
+
+std::ostream& operator<<(std::ostream& output, const QuadraticEquation& equation) {
+    output << equation.getA() << "*x^2";
+    
+    if (equation.getB() >= 0) {
+        output << " + " << equation.getB() << "*x";
+    } else {
+        output << " - " << -equation.getB() << "*x";
+    }
+    
+    if (equation.getC() >= 0) {
+        output << " + " << equation.getC();
+    } else {
+        output << " - " << -equation.getC();
+    }
+    
+    output << " = 0";
+    return output;
+}
+
+double safeInputDouble(const std::string& prompt) {
+    double value;
+    bool validInput = false;
+    
+    while (!validInput) {
+        std::cout << prompt;
+        if (std::cin >> value) {
+            validInput = true;
+        } else {
+            std::cout << "Ошибка: введите корректное число!" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+        }
+    }
+    
+    return value;
+}
+
+void demonstrateQuadraticEquation() {
+    std::cout << "=== Демонстрация работы класса QuadraticEquation ===" << std::endl;
+    std::cout << std::endl;
+    
+    try {
+        std::cout << "1. Конструктор по умолчанию:" << std::endl;
+        QuadraticEquation eq1;
+        std::cout << "   Уравнение: " << eq1 << std::endl;
+        std::cout << "   Коэффициенты: a=" << eq1.getA() 
+                  << ", b=" << eq1.getB() 
+                  << ", c=" << eq1.getC() << std::endl;
+        
+        double* roots1 = eq1.calculateRoots();
+        int numRoots1 = eq1.getNumberOfRoots();
+        std::cout << "   Количество корней: " << numRoots1 << std::endl;
+        if (numRoots1 > 0) {
+            for (int i = 0; i < numRoots1; i++) {
+                std::cout << "   Корень " << (i + 1) << ": " << roots1[i] << std::endl;
+            }
+        }
+        delete[] roots1;
+        std::cout << std::endl;
+        
+        std::cout << "2. Конструктор с параметрами (введите коэффициенты):" << std::endl;
+        double a = safeInputDouble("   Введите коэффициент a (не 0): ");
+        while (a == 0.0) {
+            std::cout << "   Ошибка: коэффициент a не может быть равен 0!" << std::endl;
+            a = safeInputDouble("   Введите коэффициент a (не 0): ");
+        }
+        
+        double b = safeInputDouble("   Введите коэффициент b: ");
+        double c = safeInputDouble("   Введите коэффициент c: ");
+        
+        QuadraticEquation eq2(a, b, c);
+        std::cout << "   Уравнение: " << eq2 << std::endl;
+        std::cout << "   Дискриминант: " << eq2.calculateDiscriminant() << std::endl;
+        
+        double* roots2 = eq2.calculateRoots();
+        int numRoots2 = eq2.getNumberOfRoots();
+        std::cout << "   Количество корней: " << numRoots2 << std::endl;
+        if (numRoots2 > 0) {
+            for (int i = 0; i < numRoots2; i++) {
+                std::cout << "   Корень " << (i + 1) << ": " << roots2[i] << std::endl;
+            }
+        }
+        delete[] roots2;
+        std::cout << std::endl;
+        
+        std::cout << "3. Конструктор копирования:" << std::endl;
+        QuadraticEquation eq3(eq2);
+        std::cout << "   Скопированное уравнение: " << eq3 << std::endl;
+        
+        std::cout << "4. Изменение коэффициентов:" << std::endl;
+        try {
+            double newA = safeInputDouble("   Введите новый коэффициент a (не 0): ");
+            eq3.setA(newA);
+            
+            double newB = safeInputDouble("   Введите новый коэффициент b: ");
+            eq3.setB(newB);
+            
+            double newC = safeInputDouble("   Введите новый коэффициент c: ");
+            eq3.setC(newC);
+            
+            std::cout << "   Обновленное уравнение: " << eq3 << std::endl;
+            
+            double* roots3 = eq3.calculateRoots();
+            int numRoots3 = eq3.getNumberOfRoots();
+            std::cout << "   Количество корней: " << numRoots3 << std::endl;
+            if (numRoots3 > 0) {
+                for (int i = 0; i < numRoots3; i++) {
+                    std::cout << "   Корень " << (i + 1) << ": " << roots3[i] << std::endl;
+                }
+            }
+            delete[] roots3;
+            
+        } catch (const std::invalid_argument& e) {
+            std::cout << "   Ошибка: " << e.what() << std::endl;
+        }
+        
+        std::cout << std::endl;
+        std::cout << "5. Тестирование обработки ошибок:" << std::endl;
+        try {
+            QuadraticEquation eqError(0, 1, 2);
+            std::cout << "   Уравнение создано: " << eqError << std::endl;
+        } catch (const std::invalid_argument& e) {
+            std::cout << "   Поймано исключение: " << e.what() << std::endl;
+        }
+        
+        std::cout << std::endl;
+        std::cout << "=== Демонстрация завершена ===" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cout << "Произошла ошибка: " << e.what() << std::endl;
+    }
+}
+
+int main() {
+    std::cout << "Лабораторная работа №4. Перегрузка операторов." << std::endl;
+    std::cout << "Класс QuadraticEquation - квадратное уравнение" << std::endl;
+    std::cout << std::endl;
+    
+    char choice;
+    do {
+        demonstrateQuadraticEquation();
+        
+        std::cout << std::endl;
+        std::cout << "Хотите выполнить еще один тест? (y/n): ";
+        std::cin >> choice;
+        std::cin.ignore(10000, '\n');
+        
+    } while (choice == 'y' || choice == 'Y');
+    
+    std::cout << "Программа завершена. Спасибо за использование!" << std::endl;
+    
+    return 0;
+}
